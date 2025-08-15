@@ -16,8 +16,7 @@ set(SOURCES
     AppDelegate.h AppDelegate.m
     MetalRenderer.h MetalRenderer.m
     MetalShaders.metal
-    framebuffer.h
-    framebuffer.m
+    ../shared/framebuffer.h
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

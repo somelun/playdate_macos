@@ -1,6 +1,6 @@
 #import "MetalRenderer.h"
 #import <simd/simd.h>
-#import "framebuffer.h"
+#import "../shared/framebuffer.h"
 
 // Set to 2 for 800x480 window, or change the window size in AppDelegate instead.
 static const int SCALE = 2;

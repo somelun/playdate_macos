@@ -1,12 +1,15 @@
 #import "AppDelegate.h"
 #import <MetalKit/MetalKit.h>
 #import "MetalRenderer.h"
+#include "../shared/framebuffer.h"
 
 @interface AppDelegate ()
 @property (nonatomic, strong) NSWindow *window;
 @property (nonatomic, strong) MTKView *mtkView;
 @property (nonatomic, strong) MetalRenderer *renderer;
 @end
+
+uint8_t *frame_buffer = NULL;
 
 @implementation AppDelegate
 
@@ -41,8 +44,19 @@
     self.renderer = [[MetalRenderer alloc] initWithView:self.mtkView];
     self.mtkView.delegate = self.renderer;
 
+    // Allocate framebuffer and fill demo stripes
+    frame_buffer = malloc(PD_BYTES_PER_ROW * PD_HEIGHT);
+    for (int y = 0; y < PD_HEIGHT; y++) {
+        for (int x = 0; x < PD_BYTES_PER_ROW; x++) {
+            frame_buffer[y * PD_BYTES_PER_ROW + x] = (y / 8) % 2 == 0 ? 0xFF : 0x00;
+        }
+    }
+    [self.renderer setFrameBufferPointer:frame_buffer];
+
     self.window.contentView = self.mtkView;
     [self.window makeKeyAndOrderFront:nil];
+
+
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
