@@ -1,3 +1,7 @@
 .DS_Store
+
+*.dylib
+*.pdxinfo
+
 build-macos/*
 build-playdate/*
