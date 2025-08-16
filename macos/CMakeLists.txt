@@ -19,7 +19,7 @@ set(SOURCES
     ../shared/framebuffer.h
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES})
 
 # Ensure .metal compiles into a default library in Xcode
 set_source_files_properties(MetalShaders.metal PROPERTIES LANGUAGE METAL)
