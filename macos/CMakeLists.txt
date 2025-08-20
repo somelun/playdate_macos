@@ -3,7 +3,6 @@
 # Window size defaults to 800x480 (2x scale of 400x240). You can change SCALE below in code.
 
 cmake_minimum_required(VERSION 3.15)
-project(MyPlaydateGame_macOS LANGUAGES C CXX OBJC OBJCXX)
 
 # --- macOS & Metal frameworks
 find_library(COCOA_LIBRARY Cocoa REQUIRED)
