@@ -23,7 +23,7 @@ typedef struct {
 @property (nonatomic, strong) id<MTLTexture> texture;      // R8Unorm grayscale 400x240
 @property (nonatomic, strong) id<MTLBuffer> vertexBuffer;
 @property (nonatomic, strong) id<MTLSamplerState> sampler;
-@property (nonatomic, strong) NSMutableData *expandedRow;  // temp row buffer for uploads
+@property (nonatomic, strong) NSMutableData *expandedFrame;
 @property (nonatomic) uint8_t *externalFB;                 // optional external pointer
 @end
 
@@ -73,7 +73,7 @@ typedef struct {
         td.usage = MTLTextureUsageShaderRead | MTLTextureUsagePixelFormatView;
         _texture = [_device newTextureWithDescriptor:td];
 
-        _expandedRow = [NSMutableData dataWithLength:PD_WIDTH];
+        _expandedFrame = [NSMutableData dataWithLength:PD_WIDTH * PD_HEIGHT];
         _externalFB = NULL; // will use extern frame_buffer if available
 
         // Set initial drawable size for nearest-neighbor scaling
@@ -105,16 +105,19 @@ static inline void expandRow(const uint8_t *srcRow, uint8_t *dstRow) {
 - (void)mtkView:(MTKView *)view drawableSizeWillChange:(CGSize)size { (void)view; (void)size; }
 
 - (void)drawInMTKView:(MTKView *)view {
+    uint8_t *dstFrame = (uint8_t *)_expandedFrame.mutableBytes;
     uint8_t *src = _externalFB ? _externalFB : frame_buffer; // prefer explicit pointer if set
     if (src) {
-        // Upload each row
         for (int y = 0; y < PD_HEIGHT; ++y) {
             const uint8_t *srcRow = src + y * PD_BYTES_PER_ROW;
-            uint8_t *dstRow = (uint8_t *)_expandedRow.mutableBytes;
-            expandRow(srcRow, dstRow);
-            MTLRegion r = MTLRegionMake2D(0, y, PD_WIDTH, 1);
-            [_texture replaceRegion:r mipmapLevel:0 withBytes:dstRow bytesPerRow:PD_WIDTH];
+            expandRow(srcRow, dstFrame + y * PD_WIDTH);
         }
+
+        MTLRegion fullRegion = MTLRegionMake2D(0, 0, PD_WIDTH, PD_HEIGHT);
+        [_texture replaceRegion:fullRegion
+                    mipmapLevel:0
+                      withBytes:dstFrame
+                    bytesPerRow:PD_WIDTH];
     }
 
     id<CAMetalDrawable> drawable = view.currentDrawable;
